@@ -6,6 +6,8 @@ package classycle.graph;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
@@ -17,7 +19,7 @@ public class PathsFinderTest extends TestCase
 {
   private static class MockVertexCondition implements VertexCondition
   {
-    private final HashSet _vertices = new HashSet();
+    private final Set<Vertex> _vertices = new HashSet<Vertex>();
     
     public MockVertexCondition(Vertex[] vertices)
     {
@@ -33,8 +35,8 @@ public class PathsFinderTest extends TestCase
     }
   }
   
-  private static final HashMap REPOSITORY = new HashMap();
-  private static final HashSet GRAPH = new HashSet();
+  private static final Map<String, MockVertex> REPOSITORY = new HashMap<String, MockVertex>();
+  private static final Set<MockVertex> GRAPH = new HashSet<MockVertex>();
   
   private static MockVertex getVertex(String name)
   {
@@ -52,14 +54,12 @@ public class PathsFinderTest extends TestCase
   
   private static MockVertex[] getAllVertices()
   {
-    return (MockVertex[]) GRAPH.toArray(new MockVertex[0]);
+    return GRAPH.toArray(new MockVertex[0]);
     
   }
 
   private static class MockVertex extends AtomicVertex
   {
-    public int countReset;
-    public int countVisit;
     public final String name;
 
     public MockVertex(String name)
@@ -71,13 +71,11 @@ public class PathsFinderTest extends TestCase
 
     public void reset()
     {
-      countReset++;
       super.reset();
     }
 
     public void visit()
     {
-      countVisit++;
       super.visit();
     }
     
@@ -202,7 +200,7 @@ public class PathsFinderTest extends TestCase
     }
     Vertex[] paths = pathsFinder.findPaths(getAllVertices());
 
-    HashSet pathNodes = new HashSet(Arrays.asList(paths));
+    Set<Vertex> pathNodes = new HashSet<Vertex>(Arrays.asList(paths));
     if (expectedPaths.length == pathNodes.size() 
         && expectedPaths.length == paths.length)
     {

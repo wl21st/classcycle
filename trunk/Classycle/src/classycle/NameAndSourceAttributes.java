@@ -24,7 +24,6 @@
  */
 package classycle;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -38,7 +37,7 @@ import classycle.graph.NameAttributes;
  */
 public abstract class NameAndSourceAttributes extends NameAttributes
 {
-  private final Set _sources = new TreeSet();
+  private final Set<String> _sources = new TreeSet<String>();
 
   /**
    * Creates an instance for the specified name. Initially there are no
@@ -71,9 +70,8 @@ public abstract class NameAndSourceAttributes extends NameAttributes
   public String getSources()
   {
     StringBuffer buffer = new StringBuffer();
-    for (Iterator iterator = _sources.iterator(); iterator.hasNext();)
+    for (String source : _sources)
     {
-      String source = (String) iterator.next();
       if (source.length() > 0)
       {
         if (buffer.length() > 0)

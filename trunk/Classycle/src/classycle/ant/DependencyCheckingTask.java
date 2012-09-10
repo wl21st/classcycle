@@ -138,6 +138,7 @@ public class DependencyCheckingTask extends ClassycleTask
     _dependencyDefinition = text.trim();
   }
   
+  @SuppressWarnings("unchecked")
   public void execute() throws BuildException
   {
     super.execute();
@@ -149,7 +150,7 @@ public class DependencyCheckingTask extends ClassycleTask
       Analyser analyser = new Analyser(getClassFileNames(), getPattern(), 
                                        getReflectionPattern(), 
                                        isMergeInnerClasses());
-      Map properties = _definitionFile == null ? getProject().getProperties() 
+      Map<Object, Object> properties = _definitionFile == null ? getProject().getProperties() 
                                                : System.getProperties();
       DependencyChecker dependencyChecker 
                         = new DependencyChecker(analyser,

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import classycle.util.AndStringPattern;
@@ -71,7 +72,7 @@ public class DependencyDefinitionParser
                     = new SetDefinitionRepository();
   final LayerDefinitionRepository _layerDefinitions 
                     = new LayerDefinitionRepository();
-  private final ArrayList _statements = new ArrayList();
+  private final List<Statement> _statements = new ArrayList<Statement>();
   
   public DependencyDefinitionParser(String dependencyDefinition,
                                     DependencyProperties properties, 
@@ -297,7 +298,7 @@ public class DependencyDefinitionParser
       throwException("Missing terms in definition of layer '" 
                      + layerName + "'.", lineNumber, 3);
     }
-    ArrayList layer = new ArrayList();
+    List<StringPattern> layer = new ArrayList<StringPattern>();
     for (int i = 3; i < tokens.length; i++) 
     {
       layer.add(createPattern(tokens[i], lineNumber, i));
@@ -422,18 +423,16 @@ public class DependencyDefinitionParser
                      + "key words are missing: " 
                      + Arrays.asList(INDEPENDENT), lineNumber, tokens.length);
     }
-    boolean directPathsOnly = DIRECTLY_INDEPENDENT_OF_KEY_WORD.equals(
-                                                tokens[lists[0].length + 1]);
-    _statements.add(new DependencyStatement(lists[0], lists[1], tokens[lists[0].length + 1], _setDefinitions,
-                                            _renderer));
+    _statements.add(new DependencyStatement(lists[0], lists[1], tokens[lists[0].length + 1],
+            _setDefinitions, _renderer));
   }
   
   private StringPattern[][] getLists(String[] tokens, int lineNumber, 
                                      String[] keyWords, int startIndex)
   {
-    ArrayList startSets = new ArrayList();
-    ArrayList endSets = new ArrayList();
-    ArrayList currentList = startSets;
+    List<StringPattern> startSets = new ArrayList<StringPattern>();
+    List<StringPattern> endSets = new ArrayList<StringPattern>();
+    List<StringPattern> currentList = startSets;
     for (int i = startIndex; i < tokens.length; i++) 
     {
       String token = tokens[i];

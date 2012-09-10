@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import classycle.graph.AtomicVertex;
@@ -31,15 +32,13 @@ public class ParserTest extends TestCase {
       + "  String[] a = {\"java.util.Date\", \"hello\", \"www.w3c.org\"};"
       + "  Class c = Integer.class;"
       + "}";
-  private static final Main JAVAC = new Main();
   private static final String TMP = "temporaryDirectory" + File.separator;
   private static final String CLASS_NAME = "Test";
   private static final String JAVA_FILE = TMP + CLASS_NAME + ".java";
-  private static final String CLASS_FILE = TMP + CLASS_NAME + ".class";
   
   private static int compile(String file)
   {
-    return JAVAC.compile(new String[] {file, "-target", "1.5"});
+    return Main.compile(new String[] {file, "-target", "1.5"});
   }
 
   private static AtomicVertex createVertex(String code, 
@@ -98,7 +97,7 @@ public class ParserTest extends TestCase {
     AtomicVertex vertex = createVertex(javaCode, reflectionPattern, 
                                        mergeInnerClasses);
     assertEquals(TMP, ((ClassAttributes) vertex.getAttributes()).getSources());
-    HashSet classSet = new HashSet();
+    Set<String> classSet = new HashSet<String>();
     for (int i = 0; i < expectedClasses.length; i++) {
       classSet.add(expectedClasses[i]);
     }

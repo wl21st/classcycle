@@ -60,7 +60,6 @@ public class DependencyProcessor
   
   /**
    * Returns <tt>true</tt> if there are still unprocessed statements.
-   * @return
    */
   public boolean hasMoreStatements() {
     return _index < _statements.length;

@@ -25,6 +25,7 @@
 package classycle.dependency;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import classycle.util.StringPattern;
 
@@ -33,8 +34,8 @@ import classycle.util.StringPattern;
  */
 class LayerDefinitionRepository
 {
-  private final HashMap _nameToLayerMap = new HashMap();
-  private final HashMap _layerToNameMap = new HashMap();
+  private final Map<String, StringPattern[]> _nameToLayerMap = new HashMap<String, StringPattern[]>();
+  private final Map<StringPattern[], String> _layerToNameMap = new HashMap<StringPattern[], String>();
   
   public int getNumberOfDefinitions() 
   {
@@ -49,7 +50,7 @@ class LayerDefinitionRepository
   
   public StringPattern[] getLayer(String name)
   {
-    return (StringPattern[]) _nameToLayerMap.get(name);
+    return _nameToLayerMap.get(name);
   }
   
   public boolean contains(String name)
@@ -59,7 +60,7 @@ class LayerDefinitionRepository
   
   public String getName(StringPattern[] layer)
   {
-    return (String) _layerToNameMap.get(layer);
+    return _layerToNameMap.get(layer);
   }
   
 }

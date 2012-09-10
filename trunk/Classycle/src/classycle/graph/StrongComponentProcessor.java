@@ -24,8 +24,10 @@
  */
 package classycle.graph;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -39,9 +41,10 @@ import java.util.Vector;
 public class StrongComponentProcessor extends GraphProcessor {
   private final boolean _calculateAttributes;
   private int _counter;
-  private Stack _vertexStack = new Stack();
-  private Vector _strongComponents = new Vector();
-  private Hashtable _vertexToComponents = new Hashtable();
+  private Stack<AtomicVertex> _vertexStack = new Stack<AtomicVertex>();
+  private Vector<StrongComponent> _strongComponents = new Vector<StrongComponent>();
+  private Map<AtomicVertex, StrongComponent> _vertexToComponents =
+          new HashMap<AtomicVertex, StrongComponent>();
   private StrongComponent[] _graph;
   
   /**
@@ -130,10 +133,11 @@ public class StrongComponentProcessor extends GraphProcessor {
       }
     }
 
-    Enumeration keys = _vertexToComponents.keys();
-    while (keys.hasMoreElements()) {
-      AtomicVertex vertex = (AtomicVertex) keys.nextElement();
-      StrongComponent tail = (StrongComponent) _vertexToComponents.get(vertex);
+    Set<Entry<AtomicVertex, StrongComponent>> entrySet = _vertexToComponents.entrySet();
+    for (Entry<AtomicVertex, StrongComponent> entry : entrySet)
+    {
+      AtomicVertex vertex = entry.getKey();
+      StrongComponent tail = entry.getValue();
       for (int i = 0, n = vertex.getNumberOfOutgoingArcs(); i < n; i++) {
         AtomicVertex h = (AtomicVertex) vertex.getHeadVertex(i);
         if (h.isGraphVertex()) {

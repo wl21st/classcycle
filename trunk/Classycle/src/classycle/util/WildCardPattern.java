@@ -57,13 +57,11 @@ public class WildCardPattern implements StringPattern
    * The return object matches a string if at least one of the
    * wild-card pattern matches. 
    * @param patterns Wild-card patterns separated by delimiters defined
-   *        in <tt>delimiters</tt>. The actual pattern will be trimed.
+   *        in <tt>delimiters</tt>. The actual pattern will be trimmed.
    *        That is, leading and trailing white-space characters are removed.
    * @param delimiters Recognized delimiters.
-   * @return
    */
-  public static StringPattern createFromsPatterns(String patterns, 
-                                                  String delimiters)
+  public static StringPattern createFromsPatterns(String patterns, String delimiters)
   {
     if (delimiters.indexOf(WILD_CARD) >= 0)
     {

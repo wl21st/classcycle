@@ -25,6 +25,7 @@
 package classycle.dependency;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import classycle.util.StringPattern;
 
@@ -33,8 +34,8 @@ import classycle.util.StringPattern;
  */
 class SetDefinitionRepository
 {
-  private final HashMap _nameToPatternMap = new HashMap();
-  private final HashMap _patternToNameMap = new HashMap();
+  private final Map<String, StringPattern> _nameToPatternMap = new HashMap<String, StringPattern>();
+  private final Map<StringPattern, String> _patternToNameMap = new HashMap<StringPattern, String>();
   
   public int getNumberOfDefinitions() 
   {
@@ -49,7 +50,7 @@ class SetDefinitionRepository
   
   public StringPattern getPattern(String name)
   {
-    return (StringPattern) _nameToPatternMap.get(name);
+    return _nameToPatternMap.get(name);
   }
   
   public boolean contains(String name)
@@ -59,7 +60,7 @@ class SetDefinitionRepository
   
   public String getName(StringPattern pattern)
   {
-    return (String) _patternToNameMap.get(pattern);
+    return _patternToNameMap.get(pattern);
   }
   
   public String toString(StringPattern pattern) 

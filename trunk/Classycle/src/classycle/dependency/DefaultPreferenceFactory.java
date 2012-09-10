@@ -25,6 +25,7 @@
 package classycle.dependency;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -62,10 +63,10 @@ public class DefaultPreferenceFactory implements PreferenceFactory
   
   private static class DefaultPreference implements Preference
   {
-    private static final HashMap REPOSITORY = new HashMap();
+    private static final Map<String, Preference> REPOSITORY = new HashMap<String, Preference>();
     public static Preference getPreference(String key)
     {
-      return (Preference) REPOSITORY.get(key);
+      return REPOSITORY.get(key);
     }
     private final String _key; 
     protected DefaultPreference(String key)

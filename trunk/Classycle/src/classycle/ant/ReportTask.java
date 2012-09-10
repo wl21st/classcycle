@@ -27,6 +27,7 @@ package classycle.ant;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.tools.ant.BuildException;
 
@@ -103,7 +104,7 @@ public class ReportTask extends ClassycleTask
   public static final String TYPE_RAW = "raw",
                              TYPE_CSV = "csv",
                              TYPE_XML = "xml";
-  private static final HashSet TYPES = new HashSet();
+  private static final Set<String> TYPES = new HashSet<String>();
   
   static 
   {

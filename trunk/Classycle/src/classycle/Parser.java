@@ -32,8 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -55,11 +56,19 @@ import classycle.util.TrueStringPattern;
  */
 public class Parser 
 {
+  public static final String ARCHIVE_PATH_DELIMITER = "::";
   private static final int ACC_INTERFACE = 0x200, ACC_ABSTRACT = 0x400;
   private static final String[] ZIP_FILE_TYPES 
       = new String[] {".zip", ".jar", ".war", ".ear"}; 
-  
-  /** Private constructor to prohibit instanciation. */
+  private static final FileFilter ZIP_FILE_FILTER = new FileFilter()
+    {
+      public boolean accept(File file)
+      {
+        return isZipFile(file);
+      }
+    };
+
+  /** Private constructor to prohibit instantiation. */
   private Parser() {
   }
   
@@ -81,16 +90,19 @@ public class Parser
    *  The elements of <tt>classFiles</tt> are file names (relative to the
    *  working directory) which are interpreted depending on its file type as
    *  <ul>
-   *    <li>name of a class file (file type <tt>.class</tt>)
-   *    <li>name of a file of type <code>.zip</code>, <code>.jar</code>,
+   *    <li>path of a class file (file type <tt>.class</tt>)
+   *    <li>path of a class file inside a ZIP file. The path has to contain both paths:
+   *        the path of the ZIP file first and the path of the class file in the ZIP file second.
+   *        Both have to be separated by '::'.
+   *    <li>path of a file of type <code>.zip</code>, <code>.jar</code>,
    *        <code>.war</code>, or <code>.ear</code>
    *        containing class file
-   *    <li>name of a folder containing class files or zip/jar/war/ear files
+   *    <li>path of a folder containing class files or zip/jar/war/ear files
    *  </ul>
    *  Folders and zip/jar/war/ear files are searched recursively 
    *  for class files. If a folder is specified only the top-level 
    *  zip/jar/war/ear files of that folder are analysed.
-   *  @param classFiles Array of file names.
+   *  @param classFiles Array of file paths.
    *  @param pattern Pattern fully qualified class names have to match in order
    *                 to be added to the graph. Otherwise they count as
    *                 'external'.
@@ -110,21 +122,31 @@ public class Parser
                                               boolean mergeInnerClasses)
                                throws IOException 
   {
-    ArrayList unresolvedNodes = new ArrayList();
+    ArrayList<UnresolvedNode> unresolvedNodes = new ArrayList<UnresolvedNode>();
+    Map<String, ZipFile> archives = new HashMap<String, ZipFile>();
     for (int i = 0; i < classFiles.length; i++) 
     {
       String classFile = classFiles[i];
+      int indexOfDelimiter = classFile.indexOf(ARCHIVE_PATH_DELIMITER);
+      if (indexOfDelimiter >= 0)  
+      {
+        String archivePath = classFile.substring(0, indexOfDelimiter);
+        ZipFile zipFile = archives.get(archivePath);
+        if (zipFile == null)
+        {
+          zipFile = new ZipFile(archivePath);
+          archives.put(archivePath, zipFile);
+        }
+        classFile = classFile.substring(indexOfDelimiter + ARCHIVE_PATH_DELIMITER.length()); 
+        ZipEntry entry = zipFile.getEntry(classFile);
+        analyseClassFileFromZipEntry(zipFile, entry, archivePath, unresolvedNodes, reflectionPattern);
+        continue;
+      }
       File file = new File(classFile);
       if (file.isDirectory()) 
       {
         analyseClassFile(file, classFile, unresolvedNodes, reflectionPattern);
-        File[] files = file.listFiles(new FileFilter()
-                                      {
-                                        public boolean accept(File file)
-                                        {
-                                          return isZipFile(file);
-                                        }
-                                      });
+        File[] files = file.listFiles(ZIP_FILE_FILTER);
         for (int j = 0; j < files.length; j++)
         {
           String source = createSourceName(classFile, files[j].getName());
@@ -144,10 +166,9 @@ public class Parser
         throw new IOException(classFile + " is an invalid file.");
       }
     }
-    List filteredNodes = new ArrayList();
-    for (int i = 0, n = unresolvedNodes.size(); i < n; i++)
+    List<UnresolvedNode> filteredNodes = new ArrayList<UnresolvedNode>();
+    for (UnresolvedNode node : unresolvedNodes)
     {
-      UnresolvedNode node = (UnresolvedNode) unresolvedNodes.get(i);
       if (node.isMatchedBy(pattern))
       {
         filteredNodes.add(node);
@@ -167,7 +188,7 @@ public class Parser
   private static boolean isZipFile(File file) 
   {
     boolean result = false;
-    String name = file.getName();
+    String name = file.getName().toLowerCase();
     for (int i = 0; i < ZIP_FILE_TYPES.length; i++) 
     {
       if (name.endsWith(ZIP_FILE_TYPES[i]))
@@ -180,7 +201,7 @@ public class Parser
   }
 
   private static void analyseClassFile(File file, String source, 
-                                       ArrayList unresolvedNodes, 
+                                       ArrayList<UnresolvedNode> unresolvedNodes, 
                                        StringPattern reflectionPattern)
                       throws IOException 
   {
@@ -214,30 +235,38 @@ public class Parser
                                  reflectionPattern);
     } finally 
     {
-      try 
+      if (stream != null)
       {
-        stream.close();
-      } catch (IOException e) {}
+        try 
+        {
+          stream.close();
+        } catch (IOException e) {}
+      }
     }
     return result;
   }
 
-  private static void analyseClassFiles(ZipFile zipFile, String source, 
-                                        ArrayList unresolvedNodes,
-                                        StringPattern reflectionPattern)
-                      throws IOException 
+  private static void analyseClassFiles(ZipFile zipFile, String source,
+          ArrayList<UnresolvedNode> unresolvedNodes, StringPattern reflectionPattern)
+          throws IOException
   {
-    Enumeration entries = zipFile.entries();
-    while (entries.hasMoreElements()) 
+    Enumeration<? extends ZipEntry> entries = zipFile.entries();
+    while (entries.hasMoreElements())
     {
-      ZipEntry entry = (ZipEntry) entries.nextElement();
-      if (!entry.isDirectory() && entry.getName().endsWith(".class")) 
-      {
-        InputStream stream = zipFile.getInputStream(entry);
-        int size = (int) entry.getSize();
-        unresolvedNodes.add(Parser.createNode(stream, source, size, 
-                                              reflectionPattern));
-      }
+      ZipEntry entry = entries.nextElement();
+      analyseClassFileFromZipEntry(zipFile, entry, source, unresolvedNodes, reflectionPattern);
+    }
+  }
+
+  private static void analyseClassFileFromZipEntry(ZipFile zipFile, ZipEntry entry, String source,
+          ArrayList<UnresolvedNode> unresolvedNodes, StringPattern reflectionPattern)
+          throws IOException
+  {
+    if (!entry.isDirectory() && entry.getName().endsWith(".class"))
+    {
+      InputStream stream = zipFile.getInputStream(entry);
+      int size = (int) entry.getSize();
+      unresolvedNodes.add(Parser.createNode(stream, source, size, reflectionPattern));
     }
   }
 
@@ -315,10 +344,9 @@ public class Parser
   static void parseUTF8Constant(UTF8Constant constant, UnresolvedNode node, 
                                 String className) 
   {
-    Set classNames = new ClassNameExtractor(constant).extract();
-    for (Iterator iter = classNames.iterator(); iter.hasNext();)
+    Set<String> classNames = new ClassNameExtractor(constant).extract();
+    for (String element : classNames)
     {
-      String element = (String) iter.next();
       if (className.equals(element) == false)
       {
         node.addLinkTo(element);

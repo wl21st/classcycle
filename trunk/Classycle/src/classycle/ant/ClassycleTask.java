@@ -26,14 +26,17 @@ package classycle.ant;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.ResourceCollection;
+import org.apache.tools.ant.types.ZipFileSet;
 
+import classycle.Parser;
 import classycle.util.AndStringPattern;
 import classycle.util.NotStringPattern;
 import classycle.util.StringPattern;
@@ -51,7 +54,7 @@ public abstract class ClassycleTask extends Task
   private StringPattern _includingClasses = new TrueStringPattern();
   private StringPattern _excludingClasses = new TrueStringPattern();
   private StringPattern _reflectionPattern;
-  private LinkedList _fileSets = new LinkedList();
+  private List<ResourceCollection> _resources = new LinkedList<ResourceCollection>();
   protected File _reportFile;
 
   public void setMergeInnerClasses(boolean mergeInnerClasses)
@@ -82,16 +85,16 @@ public abstract class ClassycleTask extends Task
     }
   }
 
-  public void addConfiguredFileset(FileSet set)
+  public void add(ResourceCollection rc)
   {
-    _fileSets.add(set);
+    _resources.add(rc);
   }
   
   public void execute() throws BuildException
   {
     super.execute();
 
-    if (_fileSets.size() == 0)
+    if (_resources.size() == 0)
     {
       throw new BuildException("at least one file set is required");
     }
@@ -99,17 +102,27 @@ public abstract class ClassycleTask extends Task
 
   protected String[] getClassFileNames()
   {
-    ArrayList fileNames = new ArrayList();
+    ArrayList<String> fileNames = new ArrayList<String>();
     String fileSeparator = System.getProperty("file.separator");
-    for (Iterator i = _fileSets.iterator(); i.hasNext();)
+    for (ResourceCollection rc : _resources)
     {
-      FileSet set = (FileSet) i.next();
+      if (!(rc instanceof FileSet)) {
+          throw new BuildException("resource collection unsupported " + rc);
+      }
+      FileSet set = (FileSet) rc;
       DirectoryScanner scanner = set.getDirectoryScanner(getProject());
       String path = scanner.getBasedir().getAbsolutePath();
       String[] localFiles = scanner.getIncludedFiles();
+      String separator = fileSeparator;
+      if (rc instanceof ZipFileSet)
+      {
+        ZipFileSet zipFileSet = (ZipFileSet) rc;
+        path = zipFileSet.getSrc().getAbsolutePath();
+        separator = Parser.ARCHIVE_PATH_DELIMITER;
+      }
       for (int j = 0; j < localFiles.length; j++)
       {
-        fileNames.add(path + fileSeparator + localFiles[j]);
+        fileNames.add(path + separator + localFiles[j]);
       }
     }
     String[] classFiles = new String[fileNames.size()];

@@ -41,7 +41,7 @@ public abstract class NameAttributes implements Attributes
     return _name;
   }
 
-  public int compareTo(Object object)
+  public int compareTo(Attributes object)
   {
     int result = -1;
     if (object instanceof NameAttributes && _name != null)
