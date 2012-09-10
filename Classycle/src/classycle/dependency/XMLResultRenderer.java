@@ -209,18 +209,15 @@ public class XMLResultRenderer extends ResultRenderer
   {
     return new DependencyPathRenderer()
       {
-        private int _level;
         private boolean _openTag;
 
         public void increaseIndentation()
         {
           _openTag = false;
-          _level++;
         }
     
         public void decreaseIndentation()
         {
-          _level--;
           if (_openTag)
           {
             builder.end();

@@ -25,6 +25,7 @@
 package classycle.graph;
 
 import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -99,8 +100,8 @@ public class PathsFinder
   public AtomicVertex[] findPaths(AtomicVertex[] graph)
   {
     prepareGraph(graph);
-    HashSet pathVertices = new HashSet();
-    HashSet currentPath = new HashSet();
+    Set<Vertex> pathVertices = new HashSet<Vertex>();
+    Set<Vertex> currentPath = new HashSet<Vertex>();
     for (int i = 0; i < graph.length; i++)
     { 
       AtomicVertex vertex = graph[i];
@@ -125,7 +126,7 @@ public class PathsFinder
                                   new AtomicVertex[pathVertices.size()]);
   }
   
-  private void findDirectPaths(AtomicVertex vertex, HashSet pathVertices)
+  private void findDirectPaths(AtomicVertex vertex, Set<Vertex> pathVertices)
   {
     if (_finalSetCondition.isFulfilled(vertex)) 
     {
@@ -167,7 +168,7 @@ public class PathsFinder
     }
   }
 
-  private int calculateShortestPath(AtomicVertex vertex, HashSet currentPath)
+  private int calculateShortestPath(AtomicVertex vertex, Set<Vertex> currentPath)
   {
     currentPath.add(vertex);
     int shortestPath = Integer.MAX_VALUE;
@@ -202,7 +203,7 @@ public class PathsFinder
     }
   }
 
-  private void followPaths(AtomicVertex vertex, HashSet pathVertices)
+  private void followPaths(AtomicVertex vertex, Set<Vertex> pathVertices)
   {
     pathVertices.add(vertex);
     int shortestPathLength = vertex.getOrder() - 1;

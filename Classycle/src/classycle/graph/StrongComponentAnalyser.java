@@ -36,7 +36,7 @@ public class StrongComponentAnalyser
 {
   private final AtomicVertex[] _graph;
   private StrongComponent[] _components;
-  private HashMap _layerMap;
+  private Map<AtomicVertex, Integer> _layerMap;
   
   /**
    * Creates an instance for the specified graph.
@@ -71,17 +71,17 @@ public class StrongComponentAnalyser
    * @return a map where the keys are instances of {@link AtomicVertex}
    *         and the values are instances of <tt>Integer</tt>.
    */
-  public Map getLayerMap() 
+  public Map<AtomicVertex, Integer> getLayerMap() 
   {
     if (_layerMap == null)
     {
       StrongComponent[] components = getCondensedGraph();
       new LongestWalkProcessor().deepSearchFirst(components);
-      _layerMap = new HashMap();
+      _layerMap = new HashMap<AtomicVertex, Integer>();
       for (int i = 0; i < components.length; i++) 
       {
         StrongComponent component = components[i];
-        Integer layer = new Integer(component.getLongestWalk());
+        int layer = component.getLongestWalk();
         for (int j = 0, n = component.getNumberOfVertices(); j < n; j++) 
         {
           _layerMap.put(component.getVertex(j), layer);

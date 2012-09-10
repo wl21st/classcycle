@@ -5,7 +5,9 @@ package classycle.dependency;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 import classycle.util.StringPattern;
@@ -16,7 +18,7 @@ import classycle.util.StringPattern;
 public class DependencyDefinitionParserTest extends TestCase
 {
   
-  private Hashtable _defaultProps;
+  private Properties _defaultProps;
 
   public void testShowStatements() 
   {
@@ -228,9 +230,9 @@ public class DependencyDefinitionParserTest extends TestCase
 
   private DependencyDefinitionParser createParser(String definition)
   {
-    _defaultProps = new Hashtable();
-    _defaultProps.put("package", "java");
-    _defaultProps.put("awt", "java.awt.*");
+    _defaultProps = new Properties();
+    _defaultProps.setProperty("package", "java");
+    _defaultProps.setProperty("awt", "java.awt.*");
     DependencyProperties properties = new DependencyProperties(_defaultProps);
     DependencyDefinitionParser parser 
         = new DependencyDefinitionParser(definition, properties, 
@@ -295,10 +297,10 @@ public class DependencyDefinitionParserTest extends TestCase
   
   private static class MockPreferenceFactory implements PreferenceFactory
   {
-    private final HashMap _keyToPreferenceMap = new HashMap();
+    private final Map<String, Preference> _keyToPreferenceMap = new HashMap<String, Preference>();
     public Preference get(String key)
     {
-      Preference preference = (Preference) _keyToPreferenceMap.get(key);
+      Preference preference = _keyToPreferenceMap.get(key);
       if (preference == null)
       {
         preference = new MockPreference(key);
@@ -310,7 +312,7 @@ public class DependencyDefinitionParserTest extends TestCase
   
   private static class MockResultRenderer extends ResultRenderer
   {
-    ArrayList list = new ArrayList();
+    List<Preference> list = new ArrayList<Preference>();
     private PreferenceFactory _factory = new MockPreferenceFactory();
     public void considerPreference(Preference preference)
     {
@@ -332,10 +334,8 @@ public class DependencyDefinitionParserTest extends TestCase
   
   private static class MockResult implements Result
   {
-    String value;
     public MockResult(String value)
     {
-      this.value = value;
     }
     public boolean isOk()
     {

@@ -18,6 +18,24 @@
     </classycleDependencyCheck>
   </target>
 
+  <target name="testEmbeddedDefinitionsFromJar" >
+    <jar destfile="${basedir}/examples.jar">
+      <fileset dir="../classes">
+        <include name="example/**/*.class"/>
+      </fileset>
+    </jar>
+    <classycleDependencyCheck resultRenderer="classycle.dependency.XMLResultRenderer">
+      <zipfileset src="${basedir}/examples.jar">
+        <include name="example/*.class"/>
+      </zipfileset>
+      show allResults
+      [A] = *A*
+      [non-A] = example.* excluding [A]
+      check [A] independentOf [non-A]
+      check [non-A] independentOf [A]
+    </classycleDependencyCheck>
+  </target>
+
   <target name="testEmbeddedDefinitionsFailureOn">
     <classycleDependencyCheck failOnUnwantedDependencies="true">
       <fileset dir="../classes/example">

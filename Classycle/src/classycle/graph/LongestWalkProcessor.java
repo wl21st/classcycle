@@ -82,8 +82,8 @@ public class LongestWalkProcessor extends GraphProcessor {
    * walk length.
    */
   protected void finishProcessing(Vertex[] graph) {
-    Arrays.sort(graph, new Comparator() {
-                          public int compare(Object obj1, Object obj2) {
+    Arrays.sort(graph, new Comparator<Vertex>() {
+                          public int compare(Vertex obj1, Vertex obj2) {
                             return ((StrongComponent) obj1).getLongestWalk()
                                    - ((StrongComponent) obj2).getLongestWalk();
                           }

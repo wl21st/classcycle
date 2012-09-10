@@ -31,6 +31,6 @@ package classycle.graph;
  *
  *  @author Franz-Josef Elmer
  */
-public interface Attributes extends Comparable 
+public interface Attributes extends Comparable<Attributes> 
 {
 } //interface

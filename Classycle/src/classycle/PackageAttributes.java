@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class PackageAttributes extends NameAndSourceAttributes
 {
-  private final List _classes = new ArrayList();
+  private final List<String> _classes = new ArrayList<String>();
   
   public PackageAttributes(String name)
   {
@@ -46,7 +46,7 @@ public class PackageAttributes extends NameAndSourceAttributes
   
   public String[] getClasses()
   {
-    return (String[]) _classes.toArray(new String[_classes.size()]);
+    return _classes.toArray(new String[_classes.size()]);
   }
   
   public void addClass(ClassAttributes classAttributes)

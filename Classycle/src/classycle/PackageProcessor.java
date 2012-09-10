@@ -26,8 +26,8 @@ package classycle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import classycle.graph.AtomicVertex;
 import classycle.graph.GraphProcessor;
@@ -61,8 +61,8 @@ public class PackageProcessor extends GraphProcessor
     }
   }
   
-  private final HashMap _packageVertices = new HashMap();
-  private final List _arcs = new ArrayList();
+  private final Map<String, PackageVertex> _packageVertices = new HashMap<String, PackageVertex>();
+  private final List<Arc> _arcs = new ArrayList<Arc>();
   private AtomicVertex[] _packageGraph;
   
   /**
@@ -98,7 +98,7 @@ public class PackageProcessor extends GraphProcessor
     int index = className.lastIndexOf('.');
     String packageName = index < 0 ? "(default package)" 
                                    : className.substring(0, index);
-    PackageVertex result = (PackageVertex) _packageVertices.get(packageName);
+    PackageVertex result = _packageVertices.get(packageName);
     if (result == null)
     {
       result = new PackageVertex(packageName);
@@ -129,18 +129,16 @@ public class PackageProcessor extends GraphProcessor
     {
       ((Arc) _arcs.get(i)).create();
     }
-    Iterator vertices = _packageVertices.values().iterator();
-    ArrayList list = new ArrayList();
-    
-    while (vertices.hasNext())
+    List<AtomicVertex> list = new ArrayList<AtomicVertex>();
+    for (AtomicVertex vertex : _packageVertices.values())
     {
-      AtomicVertex vertex = (AtomicVertex) vertices.next();
       if (vertex.isGraphVertex())
       {
         list.add(vertex);
       }
     }
-    _packageGraph = (AtomicVertex[]) list.toArray(new AtomicVertex[list.size()]);
+    _packageGraph = list.toArray(new AtomicVertex[list.size()]);
+    GraphBuilder.sort(_packageGraph);
   }
 
 }

@@ -26,7 +26,7 @@ package classycle.dependency;
 
 import static classycle.dependency.DependencyDefinitionParser.DIRECTLY_INDEPENDENT_OF_KEY_WORD;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import classycle.graph.AtomicVertex;
@@ -112,7 +112,7 @@ public class DependencyStatement implements Statement
       StringPattern startSet = _startSets[i];
       if (dependsOnly)
       {
-        Set<AtomicVertex> invalids = new HashSet<AtomicVertex>();
+        Set<AtomicVertex> invalids = new LinkedHashSet<AtomicVertex>();
         for (AtomicVertex vertex : graph)
         {
           if (startCondition.isFulfilled(vertex))
@@ -129,37 +129,35 @@ public class DependencyStatement implements Statement
             }
           }
         }
-        result.add(new DependencyResult(startSet, _finalSet, toString(startSet, _finalSet),
+        result.add(new DependencyResult(startSet, _finalSet, toString(startSet, _finalSets),
                 invalids.toArray(new AtomicVertex[0])));
       } else
       {
         for (int j = 0; j < _finalConditions.length; j++)
         {
           PathsFinder finder =
-                  new PathsFinder(startCondition, _finalConditions[j], _renderer
-                          .onlyShortestPaths(), directPathsOnly);
-          result.add(new DependencyResult(startSet, _finalSets[j], toString(i, j), finder
-                  .findPaths(graph)));
+                  new PathsFinder(startCondition, _finalConditions[j],
+                          _renderer.onlyShortestPaths(), directPathsOnly);
+          result.add(new DependencyResult(startSet, _finalSets[j], toString(startSet,
+                  new StringPattern[] {_finalSets[j]}), finder.findPaths(graph)));
         }
       }
     }
     return result;
   }
   
-  private String toString(int i, int j)
-  {
-    return toString(_startSets[i], _finalSets[j]);
-  }
-
-  private String toString(StringPattern startSet, StringPattern finalSet)
+  private String toString(StringPattern startSet, StringPattern[] finalSets)
   {
     StringBuffer buffer = new StringBuffer(CHECK);
     buffer.append(_repository.toString(startSet)).append(' ')
-          .append(_dependencyType).append(' ')
-          .append(_repository.toString(finalSet));
+          .append(_dependencyType);
+    for (int i = 0; i < finalSets.length; i++)
+    {
+      buffer.append(' ').append(_repository.toString(finalSets[i]));
+    }
     return new String(buffer);
   }
-  
+
   public String toString()
   {
     StringBuffer buffer = new StringBuffer(CHECK);

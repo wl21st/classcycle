@@ -24,6 +24,8 @@
  */
 package classycle.renderer;
 
+import classycle.ClassAttributes;
+import classycle.graph.AtomicVertex;
 
 /**
  * XML renderer of an {@link AtomicVertex} with 

@@ -62,9 +62,9 @@ public class DependencyProcessorTest extends TestCase
              + "check absenceOfPackageCycles > 1 in *.B\n"
              + "check absenceOfPackageCycles > 1 in [A]";
     String result = "check absenceOfPackageCycles > 1 in [A]\n" + 
-                          "  i et al. contains 2 packages:\n" + 
-                          "    i\n" + 
-                          "    b\n";
+                          "  b et al. contains 2 packages:\n" + 
+                          "    b\n" + 
+                          "    i\n";
     check(SHOW_ALLRESULTS + s, 
             new String[] {SHOW_ONLY_ALL, 
                           "check absenceOfPackageCycles > 1 in *.B\tOK\n", 
@@ -82,6 +82,15 @@ public class DependencyProcessorTest extends TestCase
     s = "check f.* independentOf b.*";
     check(SHOW_ALLRESULTS + s, 
           new String[] {SHOW_ONLY_ALL, s + DF + "\n  f.A\n    -> b.A\n"});
+  }
+  
+  public void testDependentOnlyOn()
+  {
+    String s = "[Integer-Numbers] = java.lang.Integer java.lang.Long\n"
+                    + "[Float-Numbers] = java.lang.Float Java.lang.Double\n"
+                    + "check [Integer-Numbers] dependentOnlyOn [Integer-Numbers] [Float-Numbers]";
+    check(SHOW_ALLRESULTS + s, new String[] {SHOW_ONLY_ALL,
+            "check [Integer-Numbers] dependentOnlyOn [Integer-Numbers] [Float-Numbers]\tOK\n"});
   }
   
   public void testPreferences()

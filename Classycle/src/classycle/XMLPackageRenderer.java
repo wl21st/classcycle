@@ -24,6 +24,8 @@
  */
 package classycle;
 
+import classycle.graph.AtomicVertex;
+import classycle.graph.NameAttributes;
 import classycle.renderer.AtomicVertexRenderer;
 import classycle.renderer.TemplateBasedClassRenderer;
 import classycle.renderer.XMLAtomicVertexRenderer;

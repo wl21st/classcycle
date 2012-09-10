@@ -25,14 +25,32 @@
 package classycle;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import classycle.graph.AtomicVertex;
+import classycle.graph.NameAttributes;
 
 class GraphBuilder
 {
+  public static void sort(AtomicVertex[] vertices)
+  {
+    Arrays.sort(vertices, new Comparator<AtomicVertex>()
+      {
+        public int compare(AtomicVertex v1, AtomicVertex v2)
+        {
+          return getName(v1).compareTo(getName(v2));
+        }
+
+        private String getName(AtomicVertex vertex)
+        {
+          return ((NameAttributes) vertex.getAttributes()).getName();
+        }
+      });
+  }
+  
   /**
    *  Creates a graph from the bunch of unresolved nodes.
    *  @param unresolvedNodes All nodes with unresolved references.
@@ -47,19 +65,19 @@ class GraphBuilder
                                     boolean mergeInnerClasses) 
   {
     Arrays.sort(unresolvedNodes);
-    Map vertices = createVertices(unresolvedNodes, mergeInnerClasses);
-    AtomicVertex[] result 
-        = (AtomicVertex[]) vertices.values().toArray(new AtomicVertex[0]);
+    Map<String, AtomicVertex> vertices = createVertices(unresolvedNodes, mergeInnerClasses);
+    AtomicVertex[] result = vertices.values().toArray(new AtomicVertex[0]);
+    sort(result);
     
-    // Add arces to vertices
+    // Add arcs to vertices
     for (int i = 0; i < unresolvedNodes.length; i++)
     {
       UnresolvedNode node = unresolvedNodes[i];
       String name = normalize(node.getAttributes().getName(), mergeInnerClasses);
-      AtomicVertex vertex = (AtomicVertex) vertices.get(name);
-      for (Iterator iterator = node.linkIterator(); iterator.hasNext();)
+      AtomicVertex vertex = vertices.get(name);
+      for (Iterator<String> iterator = node.linkIterator(); iterator.hasNext();)
       {
-        name = normalize((String) iterator.next(), mergeInnerClasses);
+        name = normalize(iterator.next(), mergeInnerClasses);
         AtomicVertex head = (AtomicVertex) vertices.get(name);
         if (head == null) 
         {
@@ -76,10 +94,10 @@ class GraphBuilder
     return result;
   }
 
-  private static Map createVertices(UnresolvedNode[] unresolvedNodes, 
+  private static Map<String, AtomicVertex> createVertices(UnresolvedNode[] unresolvedNodes, 
                                     boolean mergeInnerClasses)
   {
-    Map vertices = new HashMap();
+    Map<String, AtomicVertex> vertices = new HashMap<String, AtomicVertex>();
     for (int i = 0; i < unresolvedNodes.length; i++)
     {
       ClassAttributes attributes = unresolvedNodes[i].getAttributes();
@@ -87,11 +105,10 @@ class GraphBuilder
       String originalName = attributes.getName();
       int size = attributes.getSize();
       String name = normalize(originalName, mergeInnerClasses);
-      AtomicVertex vertex = (AtomicVertex) vertices.get(name);
+      AtomicVertex vertex = vertices.get(name);
       if (vertex != null)
       {
-        ClassAttributes vertexAttributes 
-                              = (ClassAttributes) vertex.getAttributes();
+        ClassAttributes vertexAttributes = (ClassAttributes) vertex.getAttributes();
         size += vertexAttributes.getSize();
         if (name.equals(originalName) == false)
         {

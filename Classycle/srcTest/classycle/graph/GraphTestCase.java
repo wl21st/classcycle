@@ -2,6 +2,7 @@ package classycle.graph;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import classycle.ClassAttributes;
 
@@ -30,7 +31,7 @@ public abstract class GraphTestCase extends TestCase {
 
   protected StrongComponent[] check(String[] expectedStrongComponents, 
                                     int[][] nodeLinks) {
-    HashSet expectedFingerPrints = new HashSet();
+    Set<String> expectedFingerPrints = new HashSet<String>();
     for (int i = 0; i < expectedStrongComponents.length; i++) {
       expectedFingerPrints.add(expectedStrongComponents[i]);
     }

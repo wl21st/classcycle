@@ -29,17 +29,8 @@ package classycle.dependency;
  */
 public class DefaultResultRenderer extends ResultRenderer
 {
-  private static final String SHOW 
-      = DependencyDefinitionParser.SHOW_KEY_WORD + ' ';
-  private static final PreferenceFactory FACTORY 
-                          = new DefaultPreferenceFactory();
-  private static final TextResult ONLY_SHORTEST_PATHS 
-      = new TextResult(SHOW 
-                       + DefaultPreferenceFactory.ONLY_SHORTEST_PATHS.getKey()
-                       + '\n');
-  private static final TextResult ALL_PATHS 
-      = new TextResult(SHOW + DefaultPreferenceFactory.ALL_PATHS.getKey() 
-                       + '\n');
+  private static final String SHOW = DependencyDefinitionParser.SHOW_KEY_WORD + ' ';
+  private static final PreferenceFactory FACTORY = new DefaultPreferenceFactory();
 
   private boolean _allResults;
   

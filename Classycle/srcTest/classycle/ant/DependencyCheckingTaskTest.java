@@ -44,6 +44,14 @@ public class DependencyCheckingTaskTest extends ClassycleTaskTestCase
     checkLine("  <unexpected-dependencies statement='check [non-A] independentOf [A]'>", 4);
   }
   
+  public void testEmbeddedDefinitionsFromJar() throws Exception
+  {
+    executeTarget("testEmbeddedDefinitionsFromJar");
+    checkNumberOfOutputLines(14);
+    checkLine("  <unexpected-dependencies statement='check [A] independentOf [non-A]'/>", 3);
+    checkLine("  <unexpected-dependencies statement='check [non-A] independentOf [A]'>", 4);
+  }
+  
   public void testEmbeddedDefinitionsFailureOn() throws Exception
   {
     try
@@ -112,12 +120,12 @@ public class DependencyCheckingTaskTest extends ClassycleTaskTestCase
             + "    -> example.p.A\n"
             + "check [set] dependentOnlyOn java.lang.*\n" 
             + "  Unexpected dependencies found:\n"
+            + "  example.B\n" 
+            + "    -> example.A\n" 
             + "  example.B$M\n"
             + "    -> example.A\n" 
             + "  example.p.A\n" 
             + "    -> example.A\n"
-            + "  example.B\n" 
-            + "    -> example.A\n" 
             + "check example.B* dependentOnlyOn *A\n"
             + "  Unexpected dependencies found:\n" 
             + "  example.B$M\n"
@@ -125,7 +133,8 @@ public class DependencyCheckingTaskTest extends ClassycleTaskTestCase
             + "  example.BofA\n" 
             + "    -> java.lang.Object\n"
             + "    -> java.lang.Class\n" 
-            + "    -> java.lang.Thread\n", getOutput());
+            + "    -> java.lang.Thread\n"
+            , getOutput());
   }
   
   public void testReflection() throws Exception
