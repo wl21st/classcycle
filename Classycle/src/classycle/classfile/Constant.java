@@ -45,7 +45,10 @@ public abstract class Constant {
                            CONSTANT_LONG = 5,
                            CONSTANT_DOUBLE = 6,
                            CONSTANT_NAME_AND_TYPE = 12,
-                           CONSTANT_UTF8 = 1;
+                           CONSTANT_UTF8 = 1,
+                           CONSTANT_METHOD_HANDLE=15,
+                           CONSTANT_METHOD_TYPE=16,
+                           CONSTANT_INVOKE_DYNAMIC=18;
   
   /**
    * Extracts the constant pool from the specified data stream of a class file.
@@ -104,6 +107,15 @@ public abstract class Constant {
           break;
         case CONSTANT_UTF8:
           c = new UTF8Constant(pool, stream.readUTF());
+          break;
+        case CONSTANT_METHOD_HANDLE:
+          c = new MethodHandleConstant(pool, stream.readUnsignedByte(), stream.readUnsignedShort());
+          break;
+        case CONSTANT_METHOD_TYPE:
+          c = new MethodTypeConstant(pool, stream.readUnsignedShort());
+          break;
+        case CONSTANT_INVOKE_DYNAMIC:
+          c = new InvokeDynamicConstant(pool, stream.readUnsignedShort(), stream.readUnsignedShort());
           break;
         }
         pool[i] = c;

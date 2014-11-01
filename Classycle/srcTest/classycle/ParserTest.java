@@ -38,7 +38,7 @@ public class ParserTest extends TestCase {
   
   private static int compile(String file)
   {
-    return Main.compile(new String[] {file, "-target", "1.5"});
+    return Main.compile(new String[] {file, "-target", "1.7"});
   }
 
   private static AtomicVertex createVertex(String code, 
